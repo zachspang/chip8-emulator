@@ -56,3 +56,136 @@ bool cpu::load_rom(std::string file_path) {
 
 	return true;
 }
+
+void cpu::one_cycle() {
+	//fetch
+	opcode = memory[PC] << 8 | memory[PC] + 1;
+	PC += 2;
+
+	//decode
+	//break opcode into 4 4-bit nibbles
+	unsigned char nibble1 = opcode >> 12;
+
+	unsigned char nibble2 = (opcode >> 8) & 0b00001111;
+	unsigned char& X = nibble2;
+
+	unsigned char nibble3 = (opcode >> 4) & 0b00001111;
+	unsigned char& Y = nibble3;
+
+	unsigned char nibble4 = opcode & 0b00001111;
+	unsigned char& N = nibble4;
+
+	//NN = the second and third nibbles
+	unsigned char NN = (nibble2 << 4) | nibble3;
+
+	//NNN = the seconds, third, and forth nibbles
+	unsigned short NNN = (NN << 4) | nibble4;
+
+	switch (nibble1) {
+	case 0x0:
+		switch (nibble4) {
+		//0x00E0, clear screen
+		case 0x0:
+			memset(display, 0, sizeof(display));
+			break;
+
+		//0x00EE, return from subroutine
+		case 0xE:
+			//TODO
+			break;
+		}
+		break;
+
+	//0x1NNN, jump NNN
+	case 0x1:
+		PC = NNN;
+		break;
+
+	case 0x2:
+		break;
+
+	case 0x3:
+		break;
+
+	case 0x4:
+		break;
+
+	case 0x5:
+		break;
+
+	//0x6XNN, set VX to NN
+	case 0x6:
+		V[X] = NN;
+		break;
+
+	//0x7XNN, add NN to VX
+	case 0x7:
+		V[X] += NN;
+		break;
+
+	case 0x8:
+		break;
+
+	case 0x9:
+		break;
+
+	//0xANNN, set I to NNN
+	case 0xA:
+		I = NNN;
+		break;
+
+	case 0xB:
+		break;
+
+	case 0xC:
+		break;
+	
+	//0xDXYN, Display
+	//Draw N pixels tall sprite from memory[I] at coordinates (VX,VY)
+	//If any pixels are turned off VF is set to 1
+	case 0xD:
+		unsigned int x_coord, y_coord;
+		x_coord = V[X] % 64;
+		y_coord = V[Y] % 32;
+
+		V[0xF] = 0;
+
+		//single byte of sprite data from memory
+		unsigned char sprite_data;
+
+		for (int I_offset = 0; I_offset < N; I_offset++) {
+			sprite_data = memory[I + I_offset];
+			for (int bit_index = 7; bit_index >= 0; bit_index--) {
+				int bit = (sprite_data >> bit_index) & 1;
+
+				if (display[x_coord * y_coord] == 1 && bit == 1) {
+					display[x_coord * y_coord] == 0;
+					V[0xF] = 1;
+				}
+				else if (display[x_coord * y_coord] == 0 && bit == 1) {
+					display[x_coord * y_coord] == 1;
+				}
+				
+				if (x_coord == 63) {
+					break;
+				}
+				x_coord++;
+			}
+			
+			if (y_coord == 31) {
+				break;
+			}
+			y_coord++;
+		}
+
+		break;
+
+	case 0xE:
+		break;
+
+	case 0xF:
+		break;
+
+
+	}
+}

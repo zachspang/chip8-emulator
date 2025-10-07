@@ -1,3 +1,5 @@
+#include <string>
+
 class cpu {
 public:
 	//Create a new cpu object and initialize memory and registers
