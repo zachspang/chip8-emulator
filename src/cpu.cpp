@@ -1,4 +1,5 @@
-#include <iostream>
+#include <cstring>
+#include <fstream>
 #include "cpu.h"
 
 cpu::cpu() {
@@ -38,4 +39,20 @@ cpu::cpu() {
 		memory[0x50 + i] = fontset[i];
 	}
 
+}
+
+bool cpu::load_rom(std::string file_path) {
+	std::ifstream file(file_path, std::ios::in | std::ios::binary);
+
+	if (!file.is_open()) {
+		return false;
+	}
+
+	char c;
+
+	for (int i = 0x200; file.get(c); i++) {
+		memory[i] = c;
+	}
+
+	return true;
 }

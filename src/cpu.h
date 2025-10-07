@@ -3,6 +3,9 @@ public:
 	//Create a new cpu object and initialize memory and registers
 	cpu();
 
+	//Load ROM into memory. Returns false if it fails
+	bool load_rom(std::string);
+
 	//Emulate one cpu cycle
 	void one_cycle();
 
