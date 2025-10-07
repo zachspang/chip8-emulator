@@ -8,7 +8,7 @@ set(SDL2_DIR "${CMAKE_SOURCE_DIR}/lib/SDL2-2.32.10/cmake")
 find_package(SDL2 REQUIRED)
 
 # Add source to this project's executable.
-add_executable (chip8-emulator "chip8-emulator.cpp" "chip8-emulator.h")
+add_executable (chip8-emulator "src/chip8-emulator.cpp" "src/cpu.cpp")
 
 target_link_libraries(chip8-emulator SDL2::SDL2 SDL2::SDL2main)
 
