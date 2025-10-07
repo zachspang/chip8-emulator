@@ -12,7 +12,7 @@ int main(int argc, char *argv[])
 
 	//load game
 
-	for (;;) {
+	while(true) {
 		//emulate cycle
 
 		//update screen

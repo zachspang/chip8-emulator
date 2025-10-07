@@ -1,12 +1,17 @@
 class cpu {
 public:
-	void init();
+	//Create a new cpu object and initialize memory and registers
+	cpu();
 
-	void emulateCycle();
+	//Emulate one cpu cycle
+	void one_cycle();
 
 private:
 	//4kB Memory
 	unsigned char memory[4096];
+
+	//2 byte current opcode
+	unsigned short opcode;
 
 	//16 one byte general purpose registers, V0 - VF
 	unsigned char V[16];
