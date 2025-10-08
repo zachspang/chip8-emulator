@@ -1,6 +1,7 @@
 #include <cstring>
 #include <fstream>
 #include "cpu.h"
+#include <SDL.h>
 
 cpu::cpu() {
 	unsigned char fontset[80] = {
@@ -22,6 +23,7 @@ cpu::cpu() {
 		0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 	};
 
+	screen_update_flag = false;
 	memset(memory, 0, sizeof(memory));
 	opcode = 0;
 	memset(V, 0, sizeof(V));
@@ -59,9 +61,11 @@ bool cpu::load_rom(std::string file_path) {
 
 void cpu::one_cycle() {
 	//fetch
-	opcode = memory[PC] << 8 | memory[PC] + 1;
-	PC += 2;
+	opcode = (memory[PC] << 8) | memory[PC + 1];
+	SDL_Log("Address: 0x%x opcode: 0x%x", PC, opcode);
 
+	PC += 2;
+	
 	//decode
 	//break opcode into 4 4-bit nibbles
 	unsigned char nibble1 = opcode >> 12;
@@ -75,11 +79,11 @@ void cpu::one_cycle() {
 	unsigned char nibble4 = opcode & 0b00001111;
 	unsigned char& N = nibble4;
 
-	//NN = the second and third nibbles
-	unsigned char NN = (nibble2 << 4) | nibble3;
+	//NN = the third and fourth nibbles
+	unsigned char NN = (nibble3 << 4) | nibble4;
 
 	//NNN = the seconds, third, and forth nibbles
-	unsigned short NNN = (NN << 4) | nibble4;
+	unsigned short NNN = (((nibble2 << 4) | nibble3) << 4) | nibble4;
 
 	switch (nibble1) {
 	case 0x0:
@@ -87,6 +91,7 @@ void cpu::one_cycle() {
 		//0x00E0, clear screen
 		case 0x0:
 			memset(display, 0, sizeof(display));
+			screen_update_flag = true;
 			break;
 
 		//0x00EE, return from subroutine
@@ -153,29 +158,20 @@ void cpu::one_cycle() {
 		//single byte of sprite data from memory
 		unsigned char sprite_data;
 
-		for (int I_offset = 0; I_offset < N; I_offset++) {
-			sprite_data = memory[I + I_offset];
-			for (int bit_index = 7; bit_index >= 0; bit_index--) {
-				int bit = (sprite_data >> bit_index) & 1;
+		for (int y_index = 0; y_index < N; y_index++) {
+			sprite_data = memory[I + y_index];
 
-				if (display[x_coord * y_coord] == 1 && bit == 1) {
-					display[x_coord * y_coord] == 0;
-					V[0xF] = 1;
+			for (int x_index = 7; x_index >= 0; x_index--) {
+				int bit = (sprite_data >> x_index) & 1;
+
+				if (bit == 1) {
+					if (display[(x_coord - x_index) + ((y_coord + y_index) * 64)] == 1) {
+						V[0xF] = 1;
+					}
+					screen_update_flag = true;
+					display[(x_coord - x_index) + ((y_coord + y_index) * 64)] ^= 1;
 				}
-				else if (display[x_coord * y_coord] == 0 && bit == 1) {
-					display[x_coord * y_coord] == 1;
-				}
-				
-				if (x_coord == 63) {
-					break;
-				}
-				x_coord++;
 			}
-			
-			if (y_coord == 31) {
-				break;
-			}
-			y_coord++;
 		}
 
 		break;
@@ -189,3 +185,5 @@ void cpu::one_cycle() {
 
 	}
 }
+
+unsigned char* cpu::get_display() { return display; }

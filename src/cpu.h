@@ -2,6 +2,8 @@
 
 class cpu {
 public:
+	bool screen_update_flag;
+
 	//Create a new cpu object and initialize memory and registers
 	cpu();
 
@@ -11,6 +13,8 @@ public:
 	//Emulate one cpu cycle
 	void one_cycle();
 
+	unsigned char* get_display();
+	
 private:
 	//4kB Memory
 	unsigned char memory[4096];
