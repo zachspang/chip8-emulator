@@ -29,7 +29,7 @@ int main(int argc, char *argv[])
 
 	//Initialize cpu
 	cpu chip8;
-	if (!chip8.load_rom("roms\\2-ibm-logo.ch8")) {
+	if (!chip8.load_rom("roms\\3-corax+.ch8")) {
 		SDL_LogError(1, "Unable to open ROM");
 		return 1;
 	}
@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 		
 		//store key states in memory
 
-		SDL_Delay(150);
+		SDL_Delay(16);
 
 	}
 
