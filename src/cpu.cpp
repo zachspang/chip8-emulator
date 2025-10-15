@@ -244,13 +244,16 @@ void cpu::one_cycle() {
 
 			for (int x_index = 7; x_index >= 0; x_index--) {
 				int bit = (sprite_data >> x_index) & 1;
+				int display_index = (x_coord - x_index + 7) + ((y_coord + y_index) * 64);
 
-				if (bit == 1) {
-					if (display[(x_coord - x_index + 7) + ((y_coord + y_index) * 64)] == 1) {
+				if (display_index > 2047) break;
+
+				if (bit == 1) {	
+					if (display[display_index] == 1) {
 						V[0xF] = 1;
 					}
 					screen_update_flag = true;
-					display[(x_coord - x_index + 7) + ((y_coord + y_index) * 64)] ^= 1;
+					display[display_index] ^= 1;
 				}
 			}
 		}
