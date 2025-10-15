@@ -242,9 +242,10 @@ void cpu::one_cycle() {
 		for (int y_index = 0; y_index < N; y_index++) {
 			sprite_data = memory[I + y_index];
 
-			for (int x_index = 7; x_index >= 0; x_index--) {
-				int bit = (sprite_data >> x_index) & 1;
-				int display_index = (x_coord - x_index + 7) + ((y_coord + y_index) * 64);
+			for (int x_index = 0; x_index < 8; x_index++) {
+				//get the bit from sprite data corresponding to the current pixel
+				int bit = (sprite_data >> 7 - x_index) & 1;
+				int display_index = (x_coord + x_index) + ((y_coord + y_index) * 64);
 
 				if (display_index > 2047) break;
 
