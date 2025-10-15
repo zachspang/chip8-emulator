@@ -1,4 +1,5 @@
 #include <string>
+#include <chrono>
 
 class cpu {
 public:
@@ -36,6 +37,9 @@ private:
 
 	//Stack pointer
 	unsigned short sp;
+
+	//Timestamp of last timer update
+	std::chrono::time_point<std::chrono::steady_clock> last_timer_update_timestamp;
 
 	//Two timer registers that decrement 60 times a second until hitting 0. sound_timer beeps when not 0
 	unsigned char delay_timer;

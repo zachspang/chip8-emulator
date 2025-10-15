@@ -3,6 +3,7 @@
 #include "cpu.h"
 #include <SDL.h>
 #include <random>
+#include <chrono>
 
 cpu::cpu() {
 	unsigned char fontset[80] = {
@@ -32,6 +33,7 @@ cpu::cpu() {
 	I = 0;
 	memset(stack, 0, sizeof(stack));
 	sp = 0;
+	last_timer_update_timestamp = std::chrono::steady_clock::now();;
 	delay_timer = 0;
 	sound_timer = 0;
 	memset(display, 0, sizeof(display));
@@ -61,6 +63,20 @@ bool cpu::load_rom(std::string file_path) {
 }
 
 void cpu::one_cycle() {
+	//update timers
+	auto now = std::chrono::steady_clock::now();
+	std::chrono::duration<double> elapsed_time = now - last_timer_update_timestamp;
+
+	if (elapsed_time.count() * 1000 > 16.666) {
+		if (delay_timer > 0) delay_timer--;
+		if (sound_timer > 0) {
+			sound_timer--;
+			//TODO: play beep sound
+		}
+		last_timer_update_timestamp = std::chrono::steady_clock::now();
+		//SDL_Log("Time Since Last Timer Update: %fms", elapsed_time.count() * 1000);
+	}
+
 	//fetch
 	opcode = (memory[PC] << 8) | memory[PC + 1];
 	//SDL_Log("Address: 0x%x opcode: 0x%x", PC, opcode);
@@ -244,7 +260,7 @@ void cpu::one_cycle() {
 
 			for (int x_index = 0; x_index < 8; x_index++) {
 				//get the bit from sprite data corresponding to the current pixel
-				int bit = (sprite_data >> 7 - x_index) & 1;
+				int bit = (sprite_data >> (7 - x_index)) & 1;
 				int display_index = (x_coord + x_index) + ((y_coord + y_index) * 64);
 
 				if (display_index > 2047) break;

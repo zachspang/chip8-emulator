@@ -68,7 +68,7 @@ int main(int argc, char *argv[])
 		
 		//store key states in memory
 
-		SDL_Delay(16);
+		//SDL_Delay(16);
 
 	}
 
