@@ -48,6 +48,9 @@ private:
 	//Stack pointer
 	unsigned short sp;
 
+	//Timestamp of last cycle
+	std::chrono::time_point<std::chrono::steady_clock> last_cycle_timestamp;
+
 	//Timestamp of last timer update
 	std::chrono::time_point<std::chrono::steady_clock> last_timer_update_timestamp;
 

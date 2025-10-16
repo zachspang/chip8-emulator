@@ -33,7 +33,8 @@ cpu::cpu() {
 	I = 0;
 	memset(stack, 0, sizeof(stack));
 	sp = 0;
-	last_timer_update_timestamp = std::chrono::steady_clock::now();;
+	last_cycle_timestamp = std::chrono::steady_clock::now();
+	last_timer_update_timestamp = std::chrono::steady_clock::now();
 	delay_timer = 0;
 	sound_timer = 0;
 	memset(display, 0, sizeof(display));
@@ -72,16 +73,21 @@ void cpu::one_cycle() {
 	auto now = std::chrono::steady_clock::now();
 	std::chrono::duration<double> elapsed_time = now - last_timer_update_timestamp;
 
-	if (elapsed_time.count() * 1000 > 16.666) {
+	//Decrement timers 60 times a second
+	if (elapsed_time.count() > (1.0 / 60)) {
 		if (delay_timer > 0) delay_timer--;
-		if (sound_timer > 0) {
-			sound_timer--;
-			//TODO: play beep sound
-		}
+		if (sound_timer > 0) sound_timer--;
 		last_timer_update_timestamp = std::chrono::steady_clock::now();
 		//SDL_Log("Time Since Last Timer Update: %fms", elapsed_time.count() * 1000);
 	}
 
+	now = std::chrono::steady_clock::now();
+	elapsed_time = now - last_cycle_timestamp;
+	int cycle_hz = 700;
+
+	//Dont perform next instruction if its too soon
+	if (elapsed_time.count() < (1.0 / cycle_hz)) return;
+	
 	//fetch
 	opcode = (memory[PC] << 8) | memory[PC + 1];
 	//SDL_Log("Address: 0x%x opcode: 0x%x", PC, opcode);
@@ -364,6 +370,8 @@ void cpu::one_cycle() {
 		}
 		break;
 	}
+
+	last_cycle_timestamp = std::chrono::steady_clock::now();
 }
 
 unsigned char* cpu::get_display() { return display; }
