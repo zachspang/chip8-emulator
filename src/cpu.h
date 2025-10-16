@@ -23,6 +23,9 @@ public:
 	//States of the 16 keys on the keypad in the previous cycle
 	unsigned char prev_keys[16];
 
+	//True if sound_timer > 0
+	bool is_beeping();
+
 private:
 	//4kB Memory
 	unsigned char memory[4096];

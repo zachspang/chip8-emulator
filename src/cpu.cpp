@@ -63,6 +63,10 @@ bool cpu::load_rom(std::string file_path) {
 	return true;
 }
 
+bool cpu::is_beeping() {
+	return sound_timer > 0;
+}
+
 void cpu::one_cycle() {
 	//update timers
 	auto now = std::chrono::steady_clock::now();
