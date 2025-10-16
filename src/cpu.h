@@ -14,8 +14,15 @@ public:
 	//Emulate one cpu cycle
 	void one_cycle();
 
+	//Return display
 	unsigned char* get_display();
-	
+
+	//States of the 16 keys on the keypad
+	unsigned char keys[16];
+
+	//States of the 16 keys on the keypad in the previous cycle
+	unsigned char prev_keys[16];
+
 private:
 	//4kB Memory
 	unsigned char memory[4096];
@@ -47,8 +54,5 @@ private:
 
 	//64 * 32 grid of pixels, each is 1 or 0 because the only colors are black and white
 	unsigned char display[2048];
-
-	//States of the 16 keys on the keypad
-	unsigned char keys[16];
 
 };

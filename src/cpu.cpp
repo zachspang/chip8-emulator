@@ -38,6 +38,7 @@ cpu::cpu() {
 	sound_timer = 0;
 	memset(display, 0, sizeof(display));
 	memset(keys, 0, sizeof(keys));
+	memset(prev_keys, 0, sizeof(prev_keys));
 
 	//Load fontset into 0x50–0x9F
 	for (int i = 0; i < 80; i++) {
@@ -298,11 +299,23 @@ void cpu::one_cycle() {
 			V[X] = delay_timer;
 			break;
 
-		//0xFX0A, Wait for a key press then store the key value in VX
+		//0xFX0A, Wait for a key press and release then store the key value in VX
 		case 0x0A:
-			PC -= 2;
-			//TODO: Finish this
+		{
+			bool key_released = false;
+
+			for (int i = 0; i < 16; i++) {
+				if (prev_keys[i] && !keys[i]) {
+					V[X] = i;
+					key_released = true;
+					break;
+				}
+			}
+			if (!key_released) {
+				PC -= 2;
+			}
 			break;
+		}
 
 		//0xFX15, set the delay timer to VX
 		case 0x15:
